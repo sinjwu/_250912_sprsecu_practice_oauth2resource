@@ -58,4 +58,22 @@ public class ApiController {
                 "message", "관리자 전용 통계 정보"
         ));
     }
+    @GetMapping("/token/info")
+    public ResponseEntity<Map<String, Object>> getTokenInfo(Authentication authentication) {
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            assert jwt.getIssuedAt() != null;
+            assert jwt.getExpiresAt() != null;
+            return ResponseEntity.ok(Map.of(
+                    "tokenType", "JWT",
+                    "subject", jwt.getSubject(),
+                    "issuer", jwt.getIssuer(),
+                    "issuedAt", jwt.getIssuedAt(),
+                    "expiresAt", jwt.getExpiresAt(),
+                    "scopes", jwt.getClaimAsString("scope"),
+                    "authorities", authentication.getAuthorities()
+            ));
+        }
+        return ResponseEntity.ok(Map.of("authenticated", false));
+    }
 }
